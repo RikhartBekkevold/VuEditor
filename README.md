@@ -1,6 +1,6 @@
-# fe
+# VuEditor
 
-> Vue form editor
+> Vue + Vuetify made form editor
 
 ## Build Setup
 
