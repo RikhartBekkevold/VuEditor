@@ -3,18 +3,22 @@
 
         <toolbar
             @clickMenu="right = !right"
-            @finalize="sendForm">
+            @finalize="sendForm"
+            :display="true">
         </toolbar>
         <questionmenu
             @clicked="addQuestion"
             :show="right">
         </questionmenu>
         <optionsmenu
+            @lightChange="invertColourTheme"
+            @pageChange="hidePagenr"
             @finalize="sendForm"
             @colorChange="changeColour"
             @delete="deleteEntireForm()"
             @addPage="addPage"
-            v-model="form.timerEnabled">
+            @orderPage="orderPage"
+            @timerSet="enableTime">
         </optionsmenu>
 
 
@@ -32,26 +36,42 @@
             </v-toolbar>
 
                <v-card  style="margin: auto; width: 80%; margin-bottom: 40px;" v-for="(page, index) in form.pages" v-if="index === form.currentPage"  :key="index" :light="false">
-                   <v-list :light="lightMode" :style="{'background': colors.hex}" style="min-height: 650px;" class="pt-0 ">
+                   <v-list :light="lightMode" :style="{'background': form.bgcolor.hex}" style="min-height: 650px;" class="pt-0 ">
                         <v-container fluid style="padding: 0px">
-                            <draggable v-model="page.questions" style="min-height: 650px" :options="{group:{ name:'questions' }, animation: 150}">
+                            <draggable v-model="page.questions" style="min-height: 650px" :options="{group:{ name:'questions' }, animation: 1}">
                                 <v-layout row :light="lightMode" v-for="(item, index) in page.questions" :key="item.id">
                                     <v-flex>
-                                    <v-card :style="{'background': colors.hex}" :light="lightMode" class="post" style="box-shadow: none; border-radius: 0px; padding: 20px 20px 20px 20px">
-
+                                    <v-card :style="{'background': form.bgcolor.hex}" :light="lightMode" class="post" style="box-shadow: none; border-radius: 0px; padding: 20px 20px 20px 20px">
+                                        <v-layout row>
+                                            <v-flex xs12>
                                         <!-- Question -->
-                                        <v-text-field
-                                            v-model="item.question"
-                                            :light="lightMode"
-                                            class="black--text"
-                                            style="margin-bottom: 20px"
-                                            name="input-1"
-                                            label="Question"
-                                            clearable
-                                            counter>
-                                        </v-text-field>
+                                                <v-text-field
+                                                    v-model="item.question"
+                                                    :light="lightMode"
+                                                    class="black--text"
+                                                    style="margin-bottom: 20px;"
+                                                    name="input-1"
+                                                    label="Question"
+                                                    clearable
+                                                    counter>
+                                                </v-text-field>
+
+                                            </v-flex>
+                                            <v-flex xs1>
+                                                <v-tooltip bottom>
+                                                    <v-btn slot="activator" style="" light icon @click="deleteQuestion(index, page)">
+                                                        <v-icon color="error">clear</v-icon>
+                                                    </v-btn>
+                                                     <span>Delete question</span>
+                                                </v-tooltip>
+                                            </v-flex>
+                                        </v-layout>
+
+
+
                                         <!-- TEXTFIELD -->
                                         <v-text-field
+
                                             v-if="item.title == 'Textfield'"
                                             v-model="item.value"
                                             :light="lightMode"
@@ -59,35 +79,81 @@
                                             name="input-1"
                                             label="">
                                         </v-text-field>
+
+
+
+
                                         <!-- CHECKMARK -->
-                                        <draggable v-if="item.title == 'Checkmark'" v-model="item.options" style="" :options="{animation: 150}">
+                                        <draggable v-if="item.title == 'Checkmark' || 'Radiobutton'" v-model="item.options" style="" :options="{animation: 150}">
                                             <v-layout :key="index" v-for="(n, index) in item.options" align-center>
-                                                <v-checkbox
-                                                    hide-details
-                                                    :light="lightMode"
-                                                    class="shrink mr-2"
-                                                    v-model="selected"
-                                                    :key="index"
-                                                    :value="n.label + ' ' + index">
-                                                </v-checkbox>
-                                                <v-text-field  single-line name="input-1-3" v-model="n.label" :light="lightMode" label=""></v-text-field>
+                                                <v-flex style="">
+
+
+                                                    <v-checkbox
+                                                        v-if="item.title == 'Checkmark'"
+                                                        hide-details
+                                                        :light="lightMode"
+                                                        class="shrink mr-2"
+                                                        v-model="selected"
+                                                        :key="index"
+                                                        :value="n.label + ' ' + index">
+                                                    </v-checkbox>
+
+
+                                                    <v-radio-group v-if="item.title == 'Radiobutton'" style="padding-top: 0px" class="shrink mr-2" v-model="index">
+                                                       <v-radio
+                                                           :key="index"
+                                                           :light="lightMode"
+                                                           hide-details
+                                                           class="shrink mr-2"
+                                                           :value="index"
+                                                           :name="form.pages.indexOf(item)"
+                                                           value disabled>
+                                                       </v-radio>
+                                                   </v-radio-group>
+
+
+                                                </v-flex>
+                                                <v-flex style="padding: 0px; margin: 0px" xs11>
+                                                    <v-text-field
+                                                        @keyup.enter="addOption(item)"
+                                                        single-line name="input-1-3" v-model="n.label" :light="lightMode" label="">
+                                                    </v-text-field>
+                                                </v-flex>
+                                                <v-flex style="padding: 0px; margin: 0px" xs1>
+                                                    <v-tooltip bottom>
+                                                        <v-btn slot="activator" style="font-size: 0.6em" light icon @click="deleteOption(item, index)">
+                                                            <v-icon style="font-size: 2em" color="error">clear</v-icon>
+                                                        </v-btn>
+                                                        <span>Delete option</span>
+                                                   </v-tooltip>
+                                                </v-flex>
                                             </v-layout>
                                         </draggable>
                                         <!-- RADIOBUTTON -->
-                                        <v-layout :key="index" v-for="(n, index) in item.options"  v-if="item.title == 'Radiobutton'">
-                                             <v-radio-group style="padding-top: 0px" class="shrink mr-2" v-model="index">
-                                                <v-radio
-                                                    :key="index"
-                                                    :light="lightMode"
-                                                    hide-details
-                                                    class="shrink mr-2"
-                                                    :value="index"
-                                                    :name="form.pages.indexOf(item)"
-                                                    value disabled>
-                                                </v-radio>
-                                            </v-radio-group>
+                                        <!-- <v-layout :key="index" v-for="(n, index) in item.options"  v-if="item.title == 'Radiobutton'">
+                                                <v-flex style="">
+
+                                            </v-flex>
+
+                                        </v-layout> -->
+
+
+
+                                        <!-- <v-flex style="padding: 0px; margin: 0px" xs11>
                                             <v-text-field  style="padding-top: 0px" single-line v-model="n.label" :light="lightMode" label=""></v-text-field>
-                                        </v-layout>
+                                        </v-flex>
+                                        <v-flex style="padding: 0px; margin: 0px" xs1>
+                                            <v-tooltip bottom>
+                                                <v-btn slot="activator" style="font-size: 0.6em" light icon @click="deleteOption(item, index)">
+                                                    <v-icon style="font-size: 2em" color="error">clear</v-icon>
+                                                </v-btn>
+                                                <span>Delete option</span>
+                                           </v-tooltip>
+                                        </v-flex> -->
+
+
+
                                         <!-- IMAGE -->
                                         <v-text-field
                                             :light="lightMode"
@@ -132,29 +198,66 @@
                                             thumb-label
                                             step="5">
                                         </v-slider>
+                                        <!-- SELECT -->
+                                        <v-select
+                                            v-if="item.title === 'Select'"
+                                            :items="item.options"
+                                            v-model="e1"
+                                            light
+                                            label="Select"
+                                            single-line>
+                                        </v-select>
 
                                     </v-card>
 
-                                    <v-btn style="margin: 20px; margin-right: 0px; margin-bottom: 0px" @click="addOption(item)" icon :light="lightMode">
-                                        <v-icon color="blue" style="font-size: 2em">add_circle_outline</v-icon>
-                                    </v-btn>
 
-                                    <v-btn style="margin: 20px; margin-right: 0px; margin-bottom: 0px" light icon @click="copyQuestion(page, item, index)">
-                                        <v-icon>content_copy</v-icon>
-                                    </v-btn>
+                                    <v-layout row>
+                                        <v-flex xs11>
+                                        <v-tooltip bottom>
+                                            <v-btn
+                                                slot="activator"
+                                                style="margin: 20px; margin-right: 0px; margin-bottom: 0px"
+                                                @click="addOption(item)"
+                                                icon
+                                                :light="lightMode">
+                                                <v-icon
+                                                    color="blue"
+                                                    style="font-size: 2em">
+                                                    add_circle_outline
+                                                </v-icon>
+                                            </v-btn>
+                                             <span>Add new option</span>
+                                        </v-tooltip>
 
-                                    <v-btn style="margin: 20px; margin-right: 0px; margin-bottom: 0px" light icon @click="deleteQuestion(index, page)">
-                                        <v-icon color="error">clear</v-icon>
-                                    </v-btn>
+                                        <v-tooltip bottom>
+                                            <v-btn  slot="activator" style="margin: 20px; margin-right: 0px; margin-bottom: 0px" light icon @click="copyQuestion(page, item, index)">
+                                                <v-icon>content_copy</v-icon>
+                                            </v-btn>
+                                             <span>Copy question</span>
+                                        </v-tooltip>
 
-                                    <v-divider inset :light="lightMode" style="margin: 0px 10px 50px 30px" ></v-divider>
+
+                                        <v-tooltip bottom>
+                                            <v-btn slot="activator" style="margin: 20px; margin-right: 0px; margin-bottom: 0px" light icon @click="makeObligatory(item)">
+                                                <v-icon :style="{'color': item.transparent}" class="fas fa-asterisk" style="font-size: 1em"  ></v-icon>
+                                            </v-btn>
+                                             <span> {{item.obligatory == true ? 'Remove mandatory': 'Make mandatory'}} </span>
+                                        </v-tooltip>
+                                        </v-flex>
+
+                                        <v-flex xs1>
+
+                                        </v-flex>
+                                    </v-layout>
+
+                                    <v-divider inset :light="lightMode" style="margin: 0px 10px 50px 30px"></v-divider>
 
                                     </v-flex>
                                 </v-layout>
                             </draggable>
                         </v-container>
 
-                        <div style=" width: 239px" class="mx-auto">
+                        <div style="width: 239px" class="mx-auto">
                             <v-btn style="" @click="prevPage()"  flat :light="lightMode">
                                 <v-icon>keyboard_arrow_left</v-icon>
                             </v-btn>
@@ -175,14 +278,14 @@
 
 <script>
 
-import draggable from 'vuedraggable'
+import draggable    from 'vuedraggable'
 import questionmenu from './components/questionmenu'
-import optionsmenu from './components/optionsmenu'
-import mypage from './components/mypage'
-import toolbar from './components/toolbar'
-import Question from '../js/classes'
-import Page from '../js/page'
-import axios from 'axios'
+import optionsmenu  from './components/optionsmenu'
+import mypage       from './components/mypage'
+import toolbar      from './components/toolbar'
+import Question     from '../js/classes'
+import Page         from '../js/page'
+import axios        from 'axios'
 
 
 export default {
@@ -196,13 +299,14 @@ export default {
     },
     data () {
         return {
+            e1: null,
             deleteDialog: false,
             date: null,
             time: null,
             switch1: true,
             right: true,
             switch2: false,
-            colors: { hex: '#ffffff' },
+            // colors: { hex: '#ffffff' },
             selected: [],
             textColor: "white--text",
             //computed. return pages.length
@@ -215,10 +319,13 @@ export default {
             form: {
                 id: null,
                 title: '',
-                timerEnabled: true,
+                timerEnabled: false,
                 totalTime: 0,
                 timeUponSendin: 0,
                 currentPage: 0,
+                bgcolor: { hex: '#ffffff' },
+                fgcolor: { hex: '#000' },
+                opacity: {},
 
                 times: [],
 
@@ -228,11 +335,26 @@ export default {
                     bgColor: 'red',
                     fgColor: '#000',
                 },
-                pages: [new Page(0)]
+                pages: [new Page(1)]
             }
         }
     },
     methods: {
+        enableTime: function(value) {
+             this.form.timerEnabled = value
+        },
+        deleteOption: function(question, index) {
+            question.options.splice(index, 1)
+        },
+        makeObligatory: function(item) {
+            item.obligatory = !item.obligatory
+            if(item.obligatory == false) {
+                item.transparent = '#616161'
+            }
+            else {
+                item.transparent = '#FF5252'
+            }
+        },
         nextPage: function() {
             if(this.form.currentPage < this.form.pages.length - 1) {
                 this.form.currentPage++
@@ -259,41 +381,36 @@ export default {
         },
         addOption: function(question) {
             question.options.push({label: ''})
+            // question.options[length-1].focus()
+            console.log(this.$children[this.$children.length-1]);
         },
         deleteEntireForm: function() {
             //reset the colour
-            this.colors.hex = "#fff"
+            this.form.bgcolor.hex = "#fff"
             // replace entire form with a new blank page
-            this.form.pages = [new Page(0)]
+            this.form.pages = [new Page(1)]
             // reset display of page to first page
             this.form.currentPage = 0
         },
         changeColour: function(t) {
-            this.colors.hex = t;
+            this.form.bgcolor.hex = t;
         },
         sendForm: function() {
-            this.$router.push({ name: 'FormView', params: {formObj: this.form} });
+            this.$router.push({ name: 'FormView', params: { id: JSON.stringify(this.form) } });
+
+//when to generate an id? need to query db to create unique right? 
+
             // /search?q=vue
         },
         invertColourTheme: function() {
-            this.lightMode = !this.lightmode
+            this.lightMode = !this.lightMode
+        },
+        hidePagenr: function() {
+            // this.form.pag
+        },
+        orderPage: function() {
+            this.$router.push({ path: '/pages', query: {form: this.form} })
         }
     }
 }
-
-//progress to completing answer. steps it takes to do form.
-//when clicking, get time
-//create timed questionares
-//explanation page
-//statisticvs
-//likert scale
-//control arraws
-//v-model = computed var
-//liker sacle, or rating underneath image
-//login, send data to server
-//required feields, obligatory
-//PUSH PAGES TO AN ARRAY AND THEN CYCLE TRHOUGH LIKE ON A ONE PAGE APP YOU MADE
-// features:
-//<!-- time to complete questions, feature for my own VuEditor -->
-// images then rate this image
 </script>

@@ -14,10 +14,17 @@
 
 
         <v-container fluid>
+            <v-subheader class="subheading">FORM PROPERTIES</v-subheader>
 
             <v-layout style="margin-bottom: 20px" row>
-                <v-icon v-if="icon = (checkbox == true ? 'timer' : 'timer_off')">{{icon}}</v-icon>
-                <v-switch style="width: 200px; margin-left: 10px; " hide-details label=" Timer" v-model="checkbox"></v-switch>
+                <v-icon>{{checkbox == true ? 'timer' : 'timer_off'}}</v-icon>
+                <v-switch
+                    @click="test"
+                    style="width: 200px; margin-left: 10px; "
+                    hide-details
+                    :label="checkbox == true ? 'Timer enabled' : 'Timer disabled'"
+                    v-model="checkbox">
+                </v-switch>
             </v-layout>
 
             <v-layout style="margin-bottom: 20px"  row>
@@ -49,15 +56,18 @@
 
         <v-container fluid>
             <v-divider></v-divider>
-            <v-subheader class="subheading">ACTIONS</v-subheader>
+            <v-subheader class="subheading">PAGES</v-subheader>
             <v-spacer></v-spacer>
 
             <v-btn :class="textColor" color="orange" flat @click="$emit('addPage')">
                 <v-icon style="padding-right: 5px">add</v-icon>
-                Add New Page
+                New Page
+            </v-btn>
+            <v-btn :class="textColor" color="orange" flat @click="$emit('orderPage')">
+                <v-icon style="padding-right: 15px" class="fas fa-sort"></v-icon>
+                Re-arrange pages
             </v-btn>
             <v-divider style="margin-top: 20px"></v-divider>
-
         </v-container>
 
 
@@ -119,12 +129,33 @@ export default {
             colors: '#ffffff',
         }
     },
+    watch: {
+        switch1: function() {
+            this.$emit('lightChange')
+        },
+        switch2: function() {
+            this.$emit('pageChange')
+            console.log('dsad');
+        },
+        // checkbox: function() {
+        //
+        //     this.$emit('timerSet', this.checkbox)
+        //     console.log(this.checkbox)
+        // }
+    },
+
+
     computed: {
         // checked: function() {
         //     return
         // }
     },
     methods: {
+        test: function() {
+            this.checkbox = !this.checkbox
+            this.$emit('timerSet', this.checkbox)
+            console.log(this.checkbox)
+        },
         finalize: function() {
             this.$emit('finalize')
         },

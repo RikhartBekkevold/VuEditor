@@ -2,21 +2,26 @@
     <v-layout>
         <v-flex xs12 sm6 offset-sm3>
 
-          <v-card style="margin: auto; width: 80%; margin-bottom: 40px; margin-top: 60px" v-for="(page, index) in form.pages" v-if="index === form.currentPage"  :key="index" :light="false">
+          <v-card :style="{'background': form.bgcolor.hex}"  style="margin: auto; width: 80%; margin-bottom: 40px; margin-top: 60px" v-for="(page, index) in form.pages" v-if="index === form.currentPage"  :key="index" :light="false">
+
+
                    <v-toolbar color="deep-purple darken-3" flat class="white--text">
                        <v-toolbar-title>{{form.title}}</v-toolbar-title>
                    </v-toolbar>
 
+                       <!-- {{form.pages}}
+                       <br>
+                       <br>
+                       <br>
+                       {{answers}} -->
+                       <v-list :style="{'background': form.bgcolor.hex}" :light="lightMode"  style="min-height: 650px;" class="pt-0 ">
 
 
-                       <v-list :light="lightMode"  style="min-height: 650px;" class="pt-0 ">
-
-
-                            <v-container fluid style="padding: 0px">
+                            <v-container fluid style="padding: 0px; margin-bottom: 50px">
                                     <v-layout row :light="lightMode" v-for="(item, index) in page.questions" :key="item.id">
                                         <v-flex>
 
-                                        <v-card :light="lightMode" class="post" style="box-shadow: none; border-radius: 0px; padding: 20px 20px 20px 20px">
+                                        <v-card :style="{'background': form.bgcolor.hex}" :light="lightMode" class="post" style="box-shadow: none; border-radius: 0px; padding: 20px 20px 20px 20px">
 
 
                                             <h2 style="margin-bottom: 20px">{{item.question}}</h2>
@@ -30,19 +35,17 @@
                                                 label="">
                                             </v-text-field>
 
-                                            <draggable v-if="item.title == 'Checkmark'" v-model="item.options" style="" :options="{animation: 150}">
-                                                <v-layout :key="index" v-for="(n, index) in item.options" align-center>
-                                                    <v-checkbox
-                                                        hide-details
-                                                        :light="lightMode"
-                                                        class="shrink mr-2"
-                                                        v-model="selected"
-                                                        :key="index"
-                                                        :value="n.label + ' ' + index">
-                                                    </v-checkbox>
-                                                    <v-text-field  single-line name="input-1-3" v-model="n.label" :light="lightMode" label=""></v-text-field>
-                                                </v-layout>
-                                            </draggable>
+                                            <v-layout v-if="item.title == 'Checkmark'" :key="index" v-for="(n, index) in item.options" align-center>
+                                                <v-checkbox
+                                                    hide-details
+                                                    :light="lightMode"
+                                                    class="shrink mr-2"
+                                                    v-model="selected"
+                                                    :key="index"
+                                                    :value="n.label + ' ' + index">
+                                                </v-checkbox>
+                                                <v-text-field  single-line name="input-1-3" v-model="n.label" :light="lightMode" label=""></v-text-field>
+                                            </v-layout>
 
                                             <v-layout :key="index" v-for="(n, index) in item.options"  v-if="item.title == 'Radiobutton'">
                                                  <v-radio-group style="padding-top: 0px" class="shrink mr-2" v-model="index">
@@ -64,8 +67,7 @@
                                                 v-if="item.title == 'Image' && item.showUrl == true"
                                                 name="input-1"
                                                 label="Enter image url"
-                                                v-model="item.src"
-                                                >
+                                                v-model="item.src">
                                             </v-text-field>
                                             <v-card-media
                                                 v-if="item.title == 'Image'"
@@ -103,6 +105,14 @@
                                                 step="5">
                                             </v-slider>
 
+                                            <v-select
+                                                v-if="item.title === 'Select'"
+                                                :items="item.options"
+                                                v-model="e1"
+                                                :light="lightMode"
+                                                label="Select"
+                                                single-line>
+                                            </v-select>
                                         </v-card>
 
 
@@ -111,8 +121,8 @@
                                     </v-layout>
                             </v-container>
                             <v-card-actions :style="{'background': form.bgColor}">
-                                <v-spacer/>
-                                <v-btn class="white--text" color="orange"  @click="send()">Send</v-btn>
+                                <!-- <v-spacer/> -->
+                                <v-btn class="white--text" style="position: absolute; bottom: 10px; right: 10px; margin-top: 20px" color="orange"  @click="send()">Send</v-btn>
                             </v-card-actions>
                    </v-list>
 
@@ -126,6 +136,7 @@
 <script>
 import { Photoshop, Material, Compact, Swatches, Slider, Sketch, Chrome } from 'vue-color'
 import axios from 'axios'
+// import 'whatwg-fetch'
 
 export default {
     name: 'FormView',
@@ -141,71 +152,131 @@ export default {
     props: ["formObj"],
   data () {
     return {
+        e1: null,
         lightMode: true,
         time: null,
         form: {},
-        startTime: 0
+        startTime: 0,
+        answers: []
     }
+},
+
+/*beforeRouteUpdate(to) {
+  this.name = to.params.name
+}*/
+created() {
+
+    // console.log(this.$route.query.formObj);
+
+    // axios('/server/index.php?form', {
+    //     method: 'get'
+    // }).then(function(response) {
+    //   console.log('response::', response.data)
+    //   //json pars inni her
+    //   self.$router.push({path: '/'})
+    // })
+    //   .catch(function(error) {
+    //   console.log('ERROR::', error.data)
+    // });
+    // this.$router.push({ path: 'form', query: {formObj: this.form} });
+    // this.form = this.$route.query.formObj
+    // // this.startTime = new Date().getTime()
+    // // this.form = this.$router.params.formObj
+    //
+    // //this gets called. however. not with the param again.
+    // console.log(this.$route.query.formObj);
+    // console.log(this.form);
+
+    this.fetchData()
 },
 watch: {
-    '$route'(to, from) {
-        this.form = this.formObj //must have it accessible in url
-    }
-},
-created() {
-    // this.form = this.formObj
-    this.form = $route.params.formObj
-    this.startTime = new Date().getTime()
+    // '$route'(to, from) {
+    //
+    //     this.form = to.params.formObj //must have it accessible in url
+    //     console.log(to.query.formObj)
+    //     // console.log(this.$route.query.formObj);
+    // }
+    // '$route': function (n, o) {
+    //     console.log('dsada');  //so route must be different
+    //     // this.form = this.$route.query.formObj
+    // }
+    '$route': 'fetchData' //not needed
+
+
+    //first time it reads the prop
+    //second time it read the url.. but need to encode it?
+    //so must have it sent again...?
+
 },
 methods: {
-    nextPage: function()  {
-        var time = new Date().getTime()
+        fetchData () {
+            this.form = JSON.parse(this.$route.params.id)
+            console.log(this.form);
 
-        //go to next page
-        this.form.currentPage++
+            //it cant read second time, because its just an object. first time you actually send param
 
-        // each click. push current time in - assumes forced sequence, with no going back
-        // check currentPage when clicked. to make sure only one per page? and reset if go back
-        //arrow only forward in this mode
+        },
+        nextPage: function()  {
+            this.form.currentPage++
+            if(this.form.timerEnabled) {
+                this.form.times.push(new Date().getTime())
+            }
+        },
+        validate: function() {
+            //check if all oblig fields are answered
+            var self = this;
+            this.form.pages.forEach(function(page) {
+                page.questions.forEach(function(question) {
+                    if(question.obligatory === true) {
+                        return false
+                    }
+                })
+            })
+            return true
+        },
+        checkIfQuestionIsAnswered: function() {
 
-        //PUSH THIS REPO
+            //watch? if questiion cahnged?
+            //on user click?
+            //on vmodel changed
+            //set obligatory = false
+        },
+        pushAnswers: function() {
+            var self = this;
 
-        //record time if option enabled
-        if(this.form.timerEnabled) {
-            this.form.times.push(new Date().getTime())
+            // {type: 'check', qTitle: 'What is?', answers: {'Blueberry': 44, 'Strawberry': 23, 'Strawbedrry': 2}},
+
+            this.form.pages.forEach(function(page) {
+                page.questions.forEach(function(question, index) {
+                    self.answers.push({type: check, qTitle: question.title, answers: {}   })
+
+                    question.options.forEach(function(option) {
+                        var label = option.label
+                        self.answers[index].answers.push({label: option.checked})
+                    })
+                })
+            })
+        },
+        send: function() {
+            // if(this.validate()) {
+                this.pushAnswers()
+                //not safe to only do at frontend?
+                var self = this;
+
+                axios('/server/index.php', {
+                    method: 'post',
+                    data: JSON.stringify(this.answers)
+                }).then(function(response) {
+                    console.log('response::', response.data)
+                    //json pars inni her
+                    self.$router.push({name: 'StatsView', params: { ids: JSON.stringify(self.answers) }})
+                })
+                  .catch(function(error) {
+                      console.log('ERROR::', error.data)
+                });
         }
-    },
-    send: function() {
-
-        if (this.form.timerEnabled === true) {
-            var currentTime = new Date().getTime()
-            //format: Sun Mar 25 2018 21:28:26 GMT+0200 (Vest-Europa (sommertid))
-            this.form.timeUponSendin = new Date()
-            this.form.totalTime = currentTime - this.startTime
-        }
-
-        //extract answers and package them to store in db. then can use this to fetch and display on another
-        //page
-
-
-
-        // time in milliseconds
-        console.log(this.form.totalTime);
-        // time in seconds without decimals
-        console.log(Math.round(this.form.totalTime / 1000))
-        // time in seconds
-        console.log(Math.round(this.form.totalTime / 1000))
     }
-
- }
 }
-
-//make a custom button which has api call in it when clicked, you just provide the url in a prop. then its reusable
-//automatic download with import of other library included in src. but what about updating then?
-//try and pusblish and you will understand how these things work
-
-//the dragging element becomes transparent so can see behind it when dragging
-//padding on the inside better
 
 
 </script>

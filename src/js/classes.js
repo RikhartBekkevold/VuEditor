@@ -4,16 +4,20 @@ export default function Question(type) {
     this.question = '';
     this.menu = false;
     this.elapsedTime = 0;
+    this.obligatory = false;
+    this.transparent = '#616161';
 
     switch (type) {
         case 'Radiobutton':
             this.icon = 'radio_button_checked';
             this.options = [
                 {
-                    label: ''
+                    label: '',
+                    checked: false
                 },
                 {
-                    label: ''
+                    label: '',
+                    checked: false
                 }
             ];
         break;
@@ -63,18 +67,26 @@ export default function Question(type) {
             this.icon = 'arrow_drop_down';
             this.src = '';
             this.showUrl = true;
+            this.options = [
+                    {
+                        text: 'a'
+                    },
+                    {
+                        text: 'b'
+                    }
+                ];
         break;
         default:
             console.error(
-                            'No such question type exists'
-                            + '\n Available options: '
-                            + '\n- "Radiobutton"'
-                            + '\n- "Checkmark"'
-                            + '\n- "Textfield"'
-                            + '\n- "Textarea"'
-                            + '\n- "Date"'
-                            + '\n- "Time"'
-                            + '\n- "Slider"'
-                        )
+                'No such question type exists'
+                + '\n Available options: '
+                + '\n- "Radiobutton"'
+                + '\n- "Checkmark"'
+                + '\n- "Textfield"'
+                + '\n- "Textarea"'
+                + '\n- "Date"'
+                + '\n- "Time"'
+                + '\n- "Slider"'
+            )
     }
 }

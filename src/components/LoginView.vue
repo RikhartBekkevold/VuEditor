@@ -4,7 +4,7 @@
           <v-layout align-center justify-center>
             <v-flex xs12 sm8 md4>
               <v-card class="elevation-12">
-                <v-toolbar dark color="primary">
+                <v-toolbar dark color="deep-purple darken-3">
                   <v-toolbar-title>Login</v-toolbar-title>
                 </v-toolbar>
                 <v-card-text>
@@ -15,8 +15,8 @@
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="primary" @click="back()"> <v-icon dark left>arrow_back</v-icon>Back</v-btn>
-                  <v-btn color="primary" @click="login()"> Login<v-icon dark right>arrow_forward</v-icon></v-btn>
+                  <v-btn flat  @click="back()">Back</v-btn>
+                  <v-btn flat  @click="login()">Login</v-btn>
                 </v-card-actions>
               </v-card>
             </v-flex>
@@ -35,10 +35,10 @@ export default {
     },
     methods: {
         back: function() {
-            location.hash = '/' //history api to go back instead? simulating user action
+            this.$router.push({ path: '/' })
         },
         login: function() {
-            location.hash = '/form'
+            this.$router.push({ path: '/form' })
         }
     }
 }
