@@ -1,5 +1,5 @@
 <?php
-//constants
+
 $servername = "127.0.0.1";
 $username = "root";
 $password = "";
@@ -7,15 +7,17 @@ $dbname = "vue-form-editor";
 
 
 
-$url = 4;
+$id = 4;
 
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $sth = $conn->prepare("SELECT answer FROM answer WHERE formID = '$url'");
+    // select all forms from the form table where the userID matches id recieved
+    $sth = $conn->prepare("SELECT * FROM form WHERE userID = '$id'");
     $sth->execute();
     $result = $sth->fetchAll(PDO::FETCH_ASSOC);
+
     if($result != false) {
 
         // var_dump($result);

@@ -63,7 +63,7 @@
                 <v-icon style="padding-right: 5px">add</v-icon>
                 New Page
             </v-btn>
-            <v-btn :class="textColor" color="orange" flat @click="$emit('orderPage')">
+            <v-btn :class="textColor" flat @click="$emit('orderPage')">
                 <v-icon style="padding-right: 15px" class="fas fa-sort"></v-icon>
                 Re-arrange pages
             </v-btn>

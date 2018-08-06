@@ -14,7 +14,7 @@
 
         <!-- 1.1 -->
         <v-list class="pt-0" :style="{color: style.hex}">
-            <draggable :clone="clone" v-model="input" :options="{group:{ name:'questions',  pull:'clone', put: false }, sort: false}">
+            <draggable :clone="clone" v-model="input" :options="{group:{ name: 'questions',  pull: 'clone', put: false }, sort: false, ghostClass: 'ghost', dragClass: 'drag', chosenClass: 'chosen'}">
                 <v-list-tile
                 v-for="item in input"
                 :key="item.title"
@@ -173,3 +173,20 @@ var style = {
 }
 
 </script>
+
+<style scoped>
+    /* .ghost {
+        height: 200px;
+        opacity: 1;
+        background: green;
+    }
+    .drag {
+        background: blue;
+        opacity: 1;
+    }
+    .chosen {
+        height: 200px;
+        opacity: 1;
+        border: 1px solid red;
+    } */
+</style>

@@ -160,61 +160,17 @@ export default {
         answers: []
     }
 },
-
-/*beforeRouteUpdate(to) {
-  this.name = to.params.name
-}*/
 created() {
-
-    // console.log(this.$route.query.formObj);
-
-    // axios('/server/index.php?form', {
-    //     method: 'get'
-    // }).then(function(response) {
-    //   console.log('response::', response.data)
-    //   //json pars inni her
-    //   self.$router.push({path: '/'})
-    // })
-    //   .catch(function(error) {
-    //   console.log('ERROR::', error.data)
-    // });
-    // this.$router.push({ path: 'form', query: {formObj: this.form} });
-    // this.form = this.$route.query.formObj
-    // // this.startTime = new Date().getTime()
-    // // this.form = this.$router.params.formObj
-    //
-    // //this gets called. however. not with the param again.
-    // console.log(this.$route.query.formObj);
-    // console.log(this.form);
-
     this.fetchData()
 },
 watch: {
-    // '$route'(to, from) {
-    //
-    //     this.form = to.params.formObj //must have it accessible in url
-    //     console.log(to.query.formObj)
-    //     // console.log(this.$route.query.formObj);
-    // }
-    // '$route': function (n, o) {
-    //     console.log('dsada');  //so route must be different
-    //     // this.form = this.$route.query.formObj
-    // }
     '$route': 'fetchData' //not needed
-
-
-    //first time it reads the prop
-    //second time it read the url.. but need to encode it?
-    //so must have it sent again...?
-
 },
 methods: {
         fetchData () {
             this.form = JSON.parse(this.$route.params.id)
             console.log(this.form);
-
-            //it cant read second time, because its just an object. first time you actually send param
-
+            //it cant read second time, because its just an object. first time you actually send param.. its the tyoe you get, not the content
         },
         nextPage: function()  {
             this.form.currentPage++
@@ -223,7 +179,7 @@ methods: {
             }
         },
         validate: function() {
-            //check if all oblig fields are answered
+            //check if all obligatory fields are answered
             var self = this;
             this.form.pages.forEach(function(page) {
                 page.questions.forEach(function(question) {
@@ -248,32 +204,31 @@ methods: {
 
             this.form.pages.forEach(function(page) {
                 page.questions.forEach(function(question, index) {
-                    self.answers.push({type: check, qTitle: question.title, answers: {}   })
+                    self.answers.push({type: 'check', qTitle: question.title, answers: {}   })
 
                     question.options.forEach(function(option) {
-                        var label = option.label
-                        self.answers[index].answers.push({label: option.checked})
+                        // var label = option.label
+                        // self.answers[index].answers.push({label: option.checked})
                     })
                 })
             })
         },
         send: function() {
-            // if(this.validate()) {
-                this.pushAnswers()
-                //not safe to only do at frontend?
-                var self = this;
+        // if(this.validate()) {
+            this.pushAnswers()
+            var self = this
 
-                axios('/server/index.php', {
-                    method: 'post',
-                    data: JSON.stringify(this.answers)
-                }).then(function(response) {
-                    console.log('response::', response.data)
-                    //json pars inni her
-                    self.$router.push({name: 'StatsView', params: { ids: JSON.stringify(self.answers) }})
-                })
-                  .catch(function(error) {
-                      console.log('ERROR::', error.data)
-                });
+            axios('/server/saveForm.php', {
+                method: 'post',
+                data: JSON.stringify(this.answers)
+            }).then(function(response) {
+                console.log('response::', response.data)
+                //json pars inni her
+                self.$router.push({name: 'StatsView', params: { ids: JSON.stringify(self.answers) }})
+            })
+            .catch(function(error) {
+                  console.log('ERROR::', error.data)
+            });
         }
     }
 }

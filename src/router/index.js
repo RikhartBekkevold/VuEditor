@@ -7,6 +7,7 @@ import FormView from '@/components/FormView'
 import SignupView from '@/components/SignupView'
 import StatsView from '@/components/StatsView'
 import PageView from '@/components/PageView'
+import MyFormsView from '@/components/MyFormsView'
 
 Vue.use(Router)
 
@@ -16,7 +17,9 @@ export default new Router({
         {
           path: '/',
           name: 'MainView',
-          component: MainView
+          component: MainView,
+          props: (route) => ({ query: route.query.q })
+
         },
         {
             path: '/fin',
@@ -50,6 +53,11 @@ export default new Router({
             component: PageView,
             props: (route) => ({ query: route.query.q })
         },
+        {
+            path: '/myforms',
+            name: 'MyFormsView',
+            component: MyFormsView
+        }
     ],
     mode: 'history'
 })
